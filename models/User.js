@@ -4,6 +4,25 @@ let User = function (data) {
   this.data = data;
   this.errors = [];
 };
+
+User.prototype.cleanUp = function () {
+  if (typeof this.data.username !== "string") {
+    this.data.username = "";
+  }
+  if (typeof this.data.email !== "string") {
+    this.data.email = "";
+  }
+  if (typeof this.data.password !== "string") {
+    this.data.password = "";
+  }
+  // Remove other invalid props
+  this.data = {
+    username: this.data.username.trim().toLowerCase(),
+    email: this.data.email.trim().toLowerCase(),
+    password: this.data.password,
+  };
+};
+
 User.prototype.validate = function () {
   if (this.data.username === "") {
     this.errors.push("Username is required");
@@ -36,6 +55,7 @@ User.prototype.validate = function () {
 
 User.prototype.register = function () {
   // Validate user data
+  this.cleanUp();
   this.validate();
   // If there are no val err
   // Save the user data
