@@ -1,3 +1,4 @@
+const usersCollection = require("../db").collection("users");
 const validator = require("validator");
 
 let User = function (data) {
@@ -53,11 +54,19 @@ User.prototype.validate = function () {
   }
 };
 
+User.prototype.login = async function () {
+  return new Promise();
+};
+
 User.prototype.register = function () {
   // Validate user data
   this.cleanUp();
   this.validate();
   // If there are no val err
+  if (!this.errors.length) {
+    usersCollection.insertOne(this.data);
+  }
+
   // Save the user data
 };
 
