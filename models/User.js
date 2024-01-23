@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const usersCollection = require("../db").collection("users");
 const validator = require("validator");
 
@@ -54,8 +55,21 @@ User.prototype.validate = function () {
   }
 };
 
-User.prototype.login = async function () {
-  return new Promise();
+User.prototype.login = function () {
+  return new Promise(async (resolve, reject) => {
+    this.cleanUp();
+    const loginUser = await usersCollection.findOne({
+      username: this.data.username,
+    });
+    if (
+      loginUser &&
+      bcrypt.compareSync(this.data.password, loginUser.password)
+    ) {
+      resolve("Welcome back!");
+    } else {
+      reject("Invalid username and password");
+    }
+  });
 };
 
 User.prototype.register = function () {
@@ -64,6 +78,9 @@ User.prototype.register = function () {
   this.validate();
   // If there are no val err
   if (!this.errors.length) {
+    // Hash password
+    let salt = bcrypt.genSaltSync(10);
+    this.data.password = bcrypt.hashSync(this.data.password, salt);
     usersCollection.insertOne(this.data);
   }
 
