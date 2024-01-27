@@ -15,6 +15,11 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+});
+
 const router = require("./router");
 
 app.use(express.urlencoded({ extended: false }));
