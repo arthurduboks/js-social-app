@@ -16,5 +16,6 @@ router.get(
   postController.viewCreateScreen
 );
 router.post("/create-post", userController.loggedIn, postController.create);
+router.get("/post/:id", postController.viewSingle);
 
 module.exports = router;

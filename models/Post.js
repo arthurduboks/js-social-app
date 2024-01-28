@@ -18,7 +18,7 @@ Post.prototype.cleanUp = function () {
   this.data = {
     title: this.data.title.trim(),
     body: this.data.body.trim(),
-    createdData: new Date(),
+    createdDate: new Date(),
     author: new ObjectId(this.userid),
   };
 };
@@ -50,6 +50,23 @@ Post.prototype.create = function () {
       resolve();
     } else {
       reject(this.errors);
+    }
+  });
+};
+
+Post.findSingleById = function (id) {
+  return new Promise(async function (resolve, reject) {
+    if (typeof id != "string" || !ObjectId.isValid(id)) {
+      reject();
+      return;
+    }
+    let post = await postsCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (post) {
+      resolve(post);
+    } else {
+      reject();
     }
   });
 };
