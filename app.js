@@ -16,6 +16,13 @@ app.use(session(sessionOptions));
 app.use(flash());
 
 app.use((req, res, next) => {
+  // Make current user id available on the req object
+  if (req.session.user) {
+    req.visitorId = req.session.user._id;
+  } else {
+    req.visitorId = 0;
+  }
+  // Make user session date available within view
   res.locals.user = req.session.user;
   next();
 });
