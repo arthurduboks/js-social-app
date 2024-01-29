@@ -83,7 +83,7 @@ Post.findSingleById = function (id) {
       ])
       .toArray();
 
-    // clean up author property
+    // Clean up author property
     posts = posts.map((post) => {
       post.author = {
         username: post.author.username,
