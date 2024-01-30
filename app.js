@@ -16,6 +16,9 @@ app.use(session(sessionOptions));
 app.use(flash());
 
 app.use((req, res, next) => {
+  // Make flash globally available
+  res.locals.errors = req.flash("errors");
+  res.locals.success = req.flash("success");
   // Make current user id available on the req object
   if (req.session.user) {
     req.visitorId = req.session.user._id;
