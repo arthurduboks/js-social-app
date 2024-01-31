@@ -2,7 +2,9 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
+const markdown = require("marked");
 const app = express();
+const sanitizeHTML = require("sanitize-html");
 
 const sessionOptions = {
   secret: "0d9a6e968ba0e5f65f4b2a9c55f57e9a6c7cfc737e8ddf98295bab35db25b280",
@@ -16,6 +18,28 @@ app.use(session(sessionOptions));
 app.use(flash());
 
 app.use((req, res, next) => {
+  // Make marked available globally
+  res.locals.filterHTML = (content) => {
+    return sanitizeHTML(markdown.parse(content), {
+      allowedTags: [
+        "p",
+        "br",
+        "ul",
+        "ol",
+        "li",
+        "strong",
+        "bold",
+        "italic",
+        "em",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+      ],
+      allowedAttributes: {},
+    });
+  };
   // Make flash globally available
   res.locals.errors = req.flash("errors");
   res.locals.success = req.flash("success");

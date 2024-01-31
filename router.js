@@ -24,7 +24,11 @@ router.get(
 );
 router.post("/create-post", userController.loggedIn, postController.create);
 router.get("/post/:id", postController.viewSingle);
-router.get("/post/:id/edit", postController.viewEditScreen);
-router.post("/post/:id/edit", postController.edit);
+router.get(
+  "/post/:id/edit",
+  userController.loggedIn,
+  postController.viewEditScreen
+);
+router.post("/post/:id/edit", userController.loggedIn, postController.edit);
 
 module.exports = router;

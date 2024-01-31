@@ -1,6 +1,7 @@
 const postsCollection = require("../db").db().collection("posts");
 const ObjectId = require("mongodb").ObjectId;
 const User = require("./User");
+const sanitizeHTML = require("sanitize-html");
 
 let Post = function (data, userid, requestedPostId) {
   this.data = data;
@@ -18,8 +19,14 @@ Post.prototype.cleanUp = function () {
   }
   // Clean up invalid data
   this.data = {
-    title: this.data.title.trim(),
-    body: this.data.body.trim(),
+    title: sanitizeHTML(this.data.title.trim(), {
+      allowedTags: [],
+      allowedAttributes: {},
+    }),
+    body: sanitizeHTML(this.data.body.trim(), {
+      allowedTags: [],
+      allowedAttributes: {},
+    }),
     createdDate: new Date(),
     author: new ObjectId(this.userid),
   };
@@ -42,14 +49,13 @@ Post.prototype.create = function () {
       // Save post into DB
       postsCollection
         .insertOne(this.data)
-        .then(() => {
-          resolve();
+        .then((info) => {
+          resolve(info.insertedId);
         })
         .catch(() => {
           this.errors.push("Please try again later.");
           reject(this.errors);
         });
-      resolve();
     } else {
       reject(this.errors);
     }
