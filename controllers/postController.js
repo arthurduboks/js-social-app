@@ -29,11 +29,11 @@ exports.viewSingle = async (req, res) => {
 
 exports.viewEditScreen = async (req, res) => {
   try {
-    let post = await Post.findSingleById(req.params.id);
-    if (post.authorId == req.visitorId) {
+    let post = await Post.findSingleById(req.params.id, req.visitorId);
+    if (post.isVisitorOwner) {
       res.render("edit-post", { post: post });
     } else {
-      req.flash("errors", "Your are not authorized.");
+      req.flash("errors", "You are not authorized.");
       req.session.save(() => res.redirect("/"));
     }
   } catch {
@@ -66,6 +66,22 @@ exports.edit = (req, res) => {
     .catch(() => {
       // A post with the requested id doesn't exist
       // Or user is not authorized
+      req.flash("errors", "You are not authorized.");
+      req.session.save(() => {
+        res.redirect("/");
+      });
+    });
+};
+
+exports.delete = (req, res) => {
+  Post.delete(req.params.id, req.visitorId)
+    .then(() => {
+      req.flash("success", "Post was deleted.");
+      req.session.save(() => {
+        res.redirect(`/profile/${req.session.user.username}`);
+      });
+    })
+    .catch(() => {
       req.flash("errors", "You are not authorized.");
       req.session.save(() => {
         res.redirect("/");

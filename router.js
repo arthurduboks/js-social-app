@@ -30,5 +30,6 @@ router.get(
   postController.viewEditScreen
 );
 router.post("/post/:id/edit", userController.loggedIn, postController.edit);
+router.post("/post/:id/delete", userController.loggedIn, postController.delete);
 
 module.exports = router;
