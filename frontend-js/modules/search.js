@@ -43,7 +43,9 @@ export default class Search {
       .post("/search", {
         searchTerm: this.inputField.value,
       })
-      .then(() => {})
+      .then((response) => {
+        console.log(response.data);
+      })
       .catch(() => {
         alert("Rejected!");
       });

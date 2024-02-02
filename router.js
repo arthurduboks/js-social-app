@@ -31,5 +31,6 @@ router.get(
 );
 router.post("/post/:id/edit", userController.loggedIn, postController.edit);
 router.post("/post/:id/delete", userController.loggedIn, postController.delete);
+router.post("/search", postController.search);
 
 module.exports = router;
