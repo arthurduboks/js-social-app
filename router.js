@@ -14,6 +14,7 @@ router.post("/logout", userController.logout);
 router.get(
   "/profile/:username",
   userController.ifUserExists,
+  userController.sharedProfile,
   userController.profilePostsScreen
 );
 
@@ -39,6 +40,13 @@ router.post(
   "/addFollow/:username",
   userController.loggedIn,
   followController.addFollow
+);
+
+// Unfollow routes
+router.post(
+  "/removeFollow/:username",
+  userController.loggedIn,
+  followController.removeFollow
 );
 
 module.exports = router;

@@ -15,7 +15,7 @@ Follow.prototype.cleanUp = function () {
   }
 };
 
-Follow.prototype.validate = async function () {
+Follow.prototype.validate = async function (action) {
   // User must exist in database
   let followedAccount = await usersCollection.findOne({
     username: this.followedUsername,
@@ -25,12 +25,26 @@ Follow.prototype.validate = async function () {
   } else {
     this.errors.push("User does not exist.");
   }
+  let followExists = await followsCollection.findOne({
+    followedId: this.followedId,
+    authorId: new ObjectId(this.authorId),
+  });
+  if (action == "create") {
+    if (followExists) {
+      this.errors.push("You are already following this user.");
+    }
+  }
+  if (action == "delete") {
+    if (!followExists) {
+      this.errors.push("You are not following this user. Nothing to unfollow.");
+    }
+  }
 };
 
 Follow.prototype.create = function () {
   return new Promise(async (resolve, reject) => {
     this.cleanUp();
-    await this.validate();
+    await this.validate("create");
     if (!this.errors.length) {
       await followsCollection.insertOne({
         followedId: this.followedId,
@@ -41,6 +55,34 @@ Follow.prototype.create = function () {
       reject(this.errors);
     }
   });
+};
+
+Follow.prototype.delete = function () {
+  return new Promise(async (resolve, reject) => {
+    this.cleanUp();
+    await this.validate("delete");
+    if (!this.errors.length) {
+      await followsCollection.deleteOne({
+        followedId: this.followedId,
+        authorId: new ObjectId(this.authorId),
+      });
+      resolve();
+    } else {
+      reject(this.errors);
+    }
+  });
+};
+
+Follow.isVisitorFollowing = async function (followedId, visitorId) {
+  let followDoc = await followsCollection.findOne({
+    followedId: followedId,
+    authorId: new ObjectId(visitorId),
+  });
+  if (followDoc) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 module.exports = Follow;
