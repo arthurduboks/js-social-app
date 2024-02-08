@@ -18,6 +18,20 @@ router.get(
   userController.profilePostsScreen
 );
 
+router.get(
+  "/profile/:username/followers",
+  userController.ifUserExists,
+  userController.sharedProfile,
+  userController.profileFollowScreen
+);
+
+router.get(
+  "/profile/:username/following",
+  userController.ifUserExists,
+  userController.sharedProfile,
+  userController.profileFollowingScreen
+);
+
 // User posts
 router.get(
   "/create-post",
