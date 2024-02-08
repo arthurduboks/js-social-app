@@ -95,9 +95,11 @@ exports.register = (req, res) => {
     });
 };
 
-exports.home = (req, res) => {
+exports.home = async (req, res) => {
   if (req.session.user) {
-    res.render("home-dashboard");
+    // Fetch post feed
+    let posts = await Post.getFeed(req.session.user._id);
+    res.render("home-dashboard", { posts: posts });
   } else {
     res.render("home-guest", {
       regErrors: req.flash("regErrors"),
