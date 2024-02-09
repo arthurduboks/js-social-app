@@ -6,15 +6,15 @@ const markdown = require("marked");
 const app = express();
 const sanitizeHTML = require("sanitize-html");
 
-const sessionOptions = {
+const sessionOptions = session({
   secret: "0d9a6e968ba0e5f65f4b2a9c55f57e9a6c7cfc737e8ddf98295bab35db25b280",
   store: MongoStore.create({ client: require("./db") }),
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 24, httpOnly: true },
-};
+});
 
-app.use(session(sessionOptions));
+app.use(sessionOptions);
 app.use(flash());
 
 app.use((req, res, next) => {
@@ -66,11 +66,31 @@ app.set("view engine", "ejs");
 app.use("/", router);
 
 const server = require("http").createServer(app);
-
 const io = require("socket.io")(server);
 
-io.on("connection", () => {
-  console.log("New user connected.");
+const expressSession = sessionOptions;
+
+io.use((socket, next) => {
+  expressSession(socket.request, {}, next);
+});
+
+io.on("connection", (socket) => {
+  if (socket.request.session.user) {
+    let user = socket.request.session.user;
+
+    socket.emit("welcome", { username: user.username, avatar: user.avatar });
+
+    socket.on("browserChat", (data) => {
+      socket.broadcast.emit("serverMessage", {
+        message: sanitizeHTML(data.message, {
+          allowedTags: [],
+          allowedAttributes: {},
+        }),
+        username: user.username,
+        avatar: user.avatar,
+      });
+    });
+  }
 });
 
 module.exports = server;
