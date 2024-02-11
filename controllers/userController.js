@@ -183,3 +183,28 @@ exports.profileFollowingScreen = async (req, res) => {
     res.render("404");
   }
 };
+
+exports.doesEmailExist = async (req, res) => {
+  let emailBool = await User.doesEmailExist(req.body.email);
+  res.json(emailBool);
+};
+
+exports.doesUsernameExist = (req, res) => {
+  console.log("Checking existence for username:", req.body.username);
+  User.findByUsername(req.body.username)
+    .then((userDoc) => {
+      if (userDoc) {
+        // User found
+        res.json(true);
+      } else {
+        // User not found
+        res.json(false);
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking username existence:", error);
+      res
+        .status(500)
+        .send("An error occurred while checking username existence.");
+    });
+};

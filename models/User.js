@@ -139,29 +139,54 @@ User.prototype.getAvatar = function () {
 };
 
 User.findByUsername = function (username) {
+  console.log("Starting findByUsername with:", username);
   return new Promise(function (resolve, reject) {
     if (typeof username != "string") {
-      reject();
+      console.log("Rejecting due to username not being a string");
+      reject(new Error("Username must be a string."));
       return;
     }
+
+    // Custom error handling to resolved MongoDB validation
+    console.log("Query database for username:", username);
     usersCollection
-      .findOne({ username: username })
+      // Regex  is used here because MongoDB does not support case-insensitive queries by default
+      .findOne({ username: { $regex: new RegExp("^" + username + "$", "i") } })
       .then(function (userDoc) {
+        console.log("Database query completed for:", username);
         if (userDoc) {
-          userDoc = new User(userDoc, true);
-          userDoc = {
-            _id: userDoc.data._id,
-            username: userDoc.data.username,
-            avatar: userDoc.avatar,
-          };
+          console.log("User found:", username);
+
           resolve(userDoc);
         } else {
-          reject();
+          console.log("User not found:", username);
+          resolve(null);
         }
       })
-      .catch(function () {
-        reject();
+      .catch(function (error) {
+        console.log("Database error for username:", username, error);
+        reject(new Error("Database error: " + error.message));
       });
+  });
+};
+
+User.doesEmailExist = function (email) {
+  return new Promise(async function (resolve, reject) {
+    if (typeof email != "string") {
+      resolve(false);
+      return;
+    }
+    try {
+      let user = await usersCollection.findOne({ email: email });
+      if (user) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    } catch (error) {
+      console.error("Error checking email existence:", error);
+      reject(error);
+    }
   });
 };
 
