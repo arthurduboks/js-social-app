@@ -2,6 +2,7 @@ import axios from "axios";
 
 export default class RegistrationForm {
   constructor() {
+    this.isProgrammaticSubmit = false;
     this.form = document.querySelector("#registration-form");
     this.allFields = document.querySelectorAll(
       "#registration-form .form-control"
@@ -33,7 +34,6 @@ export default class RegistrationForm {
     this.password.addEventListener("keyup", () => {
       this.isDifferent(this.password, this.passwordHandler);
     });
-    // Blur event
     this.username.addEventListener("blur", () => {
       this.isDifferent(this.username, this.usernameHandler);
     });
@@ -48,21 +48,32 @@ export default class RegistrationForm {
   // Methods
 
   validateForm() {
+    console.log("Validating form...");
+
     this.usernameInitial();
     this.usernameDelay();
     this.emailAfterDelay();
     this.passwordInitial();
     this.passwordDelay();
 
+    console.log(`Conditions: 
+      Username is unique: ${this.username.isUnique}, 
+      Username has no errors: ${!this.username.errors}, 
+      Email is unique: ${this.email.isUnique}, 
+      Email has no errors: ${!this.email.errors}, 
+      Password has no errors: ${!this.password.errors}`);
+
     if (
       this.username.isUnique &&
       !this.username.errors &&
       this.email.isUnique &&
       !this.email.errors &&
-      this.password.errors
+      !this.password.errors
     ) {
-      this.form.submit();
-    }
+      console.log("Form is valid. Attempting to submit...");
+      this.isProgrammaticSubmit = true;  
+      this.form.submit(); 
+      this.isProgrammaticSubmit = false; 
   }
 
   isDifferent(el, handler) {
@@ -119,18 +130,23 @@ export default class RegistrationForm {
       return;
     }
     try {
-      const currentEmailValue = this.email.value; // Capture the current value
+      const currentEmailValue = this.email.value;
+      console.log(`Checking email uniqueness for: ${currentEmailValue}`);
       const response = await axios.post("/doesEmailExist", {
         email: currentEmailValue,
       });
-      if (response.data && this.email.value === currentEmailValue) {
-        // Direct comparison to current value
+      console.log(`Email uniqueness check result: `, response.data);
+
+      // If response.data is true and if email exists (not unique)
+      if (response.data === true) {
         this.showValidationErr(this.email, "This e-mail is already in use.");
+        this.email.isUnique = false;
       } else {
         this.hideValidationErr(this.email);
+        this.email.isUnique = true;
       }
     } catch (error) {
-      console.log("Something went wrong.", error);
+      console.error("Something went wrong in emailAfterDelay: ", error);
     }
   }
 
