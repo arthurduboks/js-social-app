@@ -2,6 +2,7 @@ import axios from "axios";
 
 export default class RegistrationForm {
   constructor() {
+    this._csrf = document.querySelector('[name="_csrf"]').value;
     this.isProgrammaticSubmit = false;
     this.form = document.querySelector("#registration-form");
     this.allFields = document.querySelectorAll(
@@ -132,6 +133,7 @@ export default class RegistrationForm {
       const currentEmailValue = this.email.value;
       console.log(`Checking email uniqueness for: ${currentEmailValue}`);
       const response = await axios.post("/doesEmailExist", {
+        _csrf: this._csrf,
         email: currentEmailValue,
       });
       console.log(`Email uniqueness check result: `, response.data);
@@ -191,7 +193,10 @@ export default class RegistrationForm {
 
     if (!this.username.errors) {
       axios
-        .post("/doesUsernameExist", { username: this.username.value })
+        .post("/doesUsernameExist", {
+          _csrf: this._csrf,
+          username: this.username.value,
+        })
         .then((response) => {
           if (response.data) {
             this.showValidationErr(
