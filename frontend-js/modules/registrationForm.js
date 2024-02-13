@@ -19,7 +19,7 @@ export default class RegistrationForm {
 
     this.events();
   }
-  // Events
+
   events() {
     this.form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -45,8 +45,6 @@ export default class RegistrationForm {
     });
   }
 
-  // Methods
-
   validateForm() {
     console.log("Validating form...");
 
@@ -71,9 +69,10 @@ export default class RegistrationForm {
       !this.password.errors
     ) {
       console.log("Form is valid. Attempting to submit...");
-      this.isProgrammaticSubmit = true;  
-      this.form.submit(); 
-      this.isProgrammaticSubmit = false; 
+      this.isProgrammaticSubmit = true;
+      this.form.submit();
+      this.isProgrammaticSubmit = false;
+    }
   }
 
   isDifferent(el, handler) {
@@ -137,7 +136,6 @@ export default class RegistrationForm {
       });
       console.log(`Email uniqueness check result: `, response.data);
 
-      // If response.data is true and if email exists (not unique)
       if (response.data === true) {
         this.showValidationErr(this.email, "This e-mail is already in use.");
         this.email.isUnique = false;
@@ -211,7 +209,7 @@ export default class RegistrationForm {
     }
   }
 
-  insertValidation(el) {
+  insertValidation() {
     this.allFields.forEach((el) => {
       el.insertAdjacentHTML(
         "afterend",
