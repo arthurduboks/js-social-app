@@ -7,6 +7,11 @@ const csrf = require("csurf");
 const app = express();
 const sanitizeHTML = require("sanitize-html");
 
+// API routes
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use("/api", require("./router-api"));
+
 const sessionOptions = session({
   secret: "0d9a6e968ba0e5f65f4b2a9c55f57e9a6c7cfc737e8ddf98295bab35db25b280",
   store: MongoStore.create({ client: require("./db") }),
