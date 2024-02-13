@@ -2,6 +2,7 @@ import axios from "axios";
 
 export default class RegistrationForm {
   constructor() {
+    this.form = document.querySelector("#registration-form");
     this.allFields = document.querySelectorAll(
       "#registration-form .form-control"
     );
@@ -10,19 +11,60 @@ export default class RegistrationForm {
     this.username.previousValue = "";
     this.email = document.querySelector("#email-register");
     this.email.previousValue = "";
+    this.password = document.querySelector("#password-register");
+    this.password.previousValue = "";
+    this.username.isUnique = false;
+    this.email.isUnique = false;
+
     this.events();
   }
   // Events
   events() {
+    this.form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.validateForm();
+    });
     this.username.addEventListener("keyup", () => {
       this.isDifferent(this.username, this.usernameHandler);
     });
     this.email.addEventListener("keyup", () => {
       this.isDifferent(this.email, this.emailHandler);
     });
+    this.password.addEventListener("keyup", () => {
+      this.isDifferent(this.password, this.passwordHandler);
+    });
+    // Blur event
+    this.username.addEventListener("blur", () => {
+      this.isDifferent(this.username, this.usernameHandler);
+    });
+    this.email.addEventListener("blur", () => {
+      this.isDifferent(this.email, this.emailHandler);
+    });
+    this.password.addEventListener("blur", () => {
+      this.isDifferent(this.password, this.passwordHandler);
+    });
   }
 
   // Methods
+
+  validateForm() {
+    this.usernameInitial();
+    this.usernameDelay();
+    this.emailAfterDelay();
+    this.passwordInitial();
+    this.passwordDelay();
+
+    if (
+      this.username.isUnique &&
+      !this.username.errors &&
+      this.email.isUnique &&
+      !this.email.errors &&
+      this.password.errors
+    ) {
+      this.form.submit();
+    }
+  }
+
   isDifferent(el, handler) {
     if (el.previousValue != el.value) {
       handler.call(this);
@@ -35,6 +77,34 @@ export default class RegistrationForm {
     this.usernameInitial();
     clearTimeout(this.username.timer);
     this.username.timer = setTimeout(() => this.usernameDelay(), 800);
+  }
+
+  passwordHandler() {
+    this.password.errors = false;
+    this.passwordInitial();
+    clearTimeout(this.password.timer);
+    this.password.timer = setTimeout(() => this.passwordDelay(), 800);
+  }
+
+  passwordInitial() {
+    if (this.password.value.length > 30) {
+      this.showValidationErr(
+        this.password,
+        "Password must be less than or equal to 30 characters"
+      );
+    }
+    if (!this.password.errors) {
+      this.hideValidationErr(this.password);
+    }
+  }
+
+  passwordDelay() {
+    if (this.password.value.length < 12) {
+      this.showValidationErr(
+        this.password,
+        "Password must be at least 12 characters."
+      );
+    }
   }
 
   emailHandler() {

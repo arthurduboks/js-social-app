@@ -1,5 +1,6 @@
 <h2>
-    <img class="avatar-small" src="<%= profileAvatar %>" />
+  <img class="avatar-small" src="<%= profileAvatar || 'https://gravatar.com/avatar/927787e50d82f253ffe478780bf19e93?s=128' %>" alt="Profile Avatar">
+  <%= profileUsername %> 
     <%= profileUsername %> <% if(user && !isVisitorsProfile){ if(isFollowing) { %>
     <form
       class="ml-2 d-inline"
