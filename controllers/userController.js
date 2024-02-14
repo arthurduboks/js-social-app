@@ -1,6 +1,26 @@
 const User = require("../models/User");
 const Post = require("../models/Post");
 const Follow = require("../models/Follow");
+const jwt = require("jsonwebtoken");
+
+exports.apiGetPostsByUser = async (req, res) => {
+  try {
+    let authorDoc = await User.findByUsername(req.params.username);
+    let posts = await Post.findByAuthorId(authorDoc._id);
+    res.json(posts);
+  } catch {
+    res.json("Invalid request.");
+  }
+};
+
+exports.apiLoggedIn = (req, res, next) => {
+  try {
+    req.apiUser = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    next();
+  } catch (err) {
+    res.json("Token is not valid.");
+  }
+};
 
 exports.sharedProfile = async (req, res, next) => {
   let isVisitorsProfile = false;
@@ -62,6 +82,22 @@ exports.login = (req, res) => {
       req.session.save(() => {
         res.redirect("/");
       });
+    });
+};
+
+exports.apiLogin = (req, res) => {
+  let user = new User(req.body);
+  user
+    .login()
+    .then((result) => {
+      res.json(
+        jwt.sign({ _id: user.data._id }, process.env.JWT_SECRET, {
+          expiresIn: "30d",
+        })
+      );
+    })
+    .catch((e) => {
+      res.json();
     });
 };
 
